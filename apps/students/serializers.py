@@ -5,8 +5,16 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ['id', 'class_id', 'name', 'birth_date', 'gender']
+        fields = ['id', 'class_id', 'name', 'email', 'birth_date', 'gender']
         read_only_fields = ['id']
+    
+    def validate_email(self, value):
+        """
+        email이 유니크한지 확인
+        """
+        if Student.objects.filter(email=value).exists():
+            raise serializers.ValidationError("이미 존재하는 이메일입니다.")
+        return value
     
     def validate_birth_date(self, value):
         """

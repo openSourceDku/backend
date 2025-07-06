@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "apps.teachers",
     "apps.managers",
     "apps.acounts",
+    "apps.classes",
     "rest_framework",
     "rest_framework_simplejwt",
     'rest_framework_simplejwt.token_blacklist',
