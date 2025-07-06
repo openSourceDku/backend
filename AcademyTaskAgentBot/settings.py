@@ -139,7 +139,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15), #임시 access 유효기간
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30), #임시 access 유효기간
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    #임시 refresh 유효기간
     'ROTATE_REFRESH_TOKENS': False,                 #refrash 시 새로운 refresh 토큰 발급 : False
     'BLACKLIST_AFTER_ROTATION': True,               #기존 refrash 토큰 사용 제한 : True

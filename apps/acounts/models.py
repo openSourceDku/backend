@@ -30,12 +30,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     '''
     실제 유저 모델입니다.
     필드 값은 다음과 같습니다.
-        in : integer
+        username : integer
         role : charField
 
     password는 RegisterSerializer에서 등록합니다.
     '''
-    
+
     ROLE_CHOICES = (
         ('teacher', 'Teacher'),
         ('admin', 'Admin'),
