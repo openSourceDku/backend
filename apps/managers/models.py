@@ -10,3 +10,11 @@ class Manager(models.Model) :
 
     def __str__(self):
         return f"{self.manager_id} {self.name}"
+
+class Fixture(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.PositiveIntegerField()
+    count = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.name
