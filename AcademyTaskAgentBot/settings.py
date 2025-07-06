@@ -41,8 +41,10 @@ INSTALLED_APPS = [
     "apps.students",
     "apps.teachers",
     "apps.managers",
+    "apps.acounts",
     "rest_framework",
     "rest_framework_simplejwt",
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -127,6 +129,9 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+#accounts - CustomUser => 계정모델 등록
+AUTH_USER_MODEL = 'acounts.CustomUser'
+
 #Token setting - using JWT
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -135,9 +140,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15), #임시 access 유효기간
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30), #임시 access 유효기간
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    #임시 refresh 유효기간
-    'ROTATE_REFRESH_TOKENS': False,                 #refrash 시 새로운 refresh 토큰 발급 : False
+    'ROTATE_REFRESH_TOKENS': True,                 #refrash 시 새로운 refresh 토큰 발급 : False
     'BLACKLIST_AFTER_ROTATION': True,               #기존 refrash 토큰 사용 제한 : True
     'ALGORITHM': 'HS256',                           #토큰 암호화 알고리즘 : 
     'SIGNING_KEY': SECRET_KEY,                      #토큰 서명 비밀키 (secret_key 재사용)
