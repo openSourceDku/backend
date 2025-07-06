@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
+
 # Create your models here.
 
 class CustomUserManager(BaseUserManager):
@@ -16,13 +17,21 @@ class CustomUserManager(BaseUserManager):
         user = self.model(username=username, role=role)
         user.set_password(password)
         user.save(using=self._db)
+
+        # role이 admin일 경우 Manage 테이블 추가
+        if role == "admin" :
+            from apps.managers.models import Manager
+            Manager.objects.create(manager_id = user, name = username, position = role)
+
         return user
 
     def create_superuser(self, username, role="admin", password=None):
+        #계정 모델(DaseUserManager)등록
         user = self.create_user(username=username, role=role, password=password)
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
+
         return user
 
 
