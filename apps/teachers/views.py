@@ -8,6 +8,11 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from .models import Teacher
 from .serializers import TeacherSerializer
+from django.core.mail import send_mail
+from django.conf import settings
+from apps.students.models import Student
+from apps.students.serializers import StudentSerializer
+from apps.classes.models import Class
 
 # Create your views here.
 
@@ -141,3 +146,57 @@ def teachers_api(request):
                 'message': '서버 내부 오류가 발생했습니다.',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])  # 실제 운영시에는 인증 필요
+def send_report_to_students(request):
+    data = request.data
+    common = data.get('common', {})
+    recipients = data.get('recipients', [])
+
+    subject = common.get('subject', '')
+    content = common.get('content', '')
+
+    results = []
+    for rec in recipients:
+        student_id = rec.get('studentId')
+        personal_msg = rec.get('personalMessage', '')
+        try:
+            student = Student.objects.get(id=student_id)
+            full_content = f"{content}\n\n{personal_msg}"
+            send_mail(
+                subject,
+                full_content,
+                settings.DEFAULT_FROM_EMAIL,
+                [student.email],
+                fail_silently=False,
+            )
+            results.append({
+                'studentId': student_id,
+                'email': student.email,
+                'status': 'sent'
+            })
+        except Student.DoesNotExist:
+            results.append({
+                'studentId': student_id,
+                'status': 'not_found'
+            })
+        except Exception as e:
+            results.append({
+                'studentId': student_id,
+                'status': 'error',
+                'error': str(e)
+            })
+
+    return Response({'results': results}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_class_students(request, class_id):
+    try:
+        class_obj = Class.objects.get(id=class_id)
+    except Class.DoesNotExist:
+        return Response({'message': '해당 classId의 수업이 존재하지 않습니다.'}, status=status.HTTP_404_NOT_FOUND)
+    students = class_obj.students.all()
+    serializer = StudentSerializer(students, many=True)
+    return Response({'students': serializer.data}, status=status.HTTP_200_OK)

@@ -34,6 +34,7 @@ def students_api(request):
                     "id": student['id'],  # student_id를 id로 변경
                     "class_id": student['class_id'],
                     "name": student['name'],
+                    "email": student['email'],
                     "birth_date": student['birth_date'],
                     "gender": student['gender']
                 })
