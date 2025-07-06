@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.students",
     "apps.teachers",
     "apps.managers",
+    "apps.acounts",
     "rest_framework",
     "rest_framework_simplejwt",
 ]
@@ -126,6 +127,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+#accounts - CustomUser => 계정모델 등록
+AUTH_USER_MODEL = 'acounts.CustomUser'
 
 #Token setting - using JWT
 REST_FRAMEWORK = {
