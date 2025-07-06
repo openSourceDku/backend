@@ -16,10 +16,10 @@ class StudentViewSet(viewsets.ReadOnlyModelViewSet):
 def students_api(request):
     """
     학생 API
-    GET /api/admin/students - 학생 조회
-    POST /api/admin/students - 학생 등록
-    PATCH /api/admin/students - 학생 수정
-    DELETE /api/admin/students - 학생 삭제
+    GET /students - 학생 조회
+    POST /students - 학생 등록
+    PATCH /students - 학생 수정
+    DELETE /students - 학생 삭제
     """
     if request.method == 'GET':
         # 학생 조회

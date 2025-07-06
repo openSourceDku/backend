@@ -22,11 +22,6 @@ urlpatterns = [
     path("teachers/", include('apps.teachers.urls')),
     path("students/", include('apps.students.urls')),
     path("managers/", include('apps.managers.urls')),
-    path("api/admin/students/", include('apps.students.urls')),
-    path("api/admin/teachers/", include('apps.teachers.urls')),
-    path("api/teachers/", include('apps.teachers.urls')),
-    path("api/classes/", include('apps.classes.urls')),
-    path("api/admin/classes", include('apps.classes.urls')),
-    path("api/admin/classes/", include('apps.classes.urls')),
+    path("acounts/", include('apps.acounts.urls')),
     path("admin/", admin.site.urls),
 ]
