@@ -14,9 +14,13 @@ def index(request) :
     return HttpResponse("hello manager apps")
 
 class FixtureCreateView(APIView):
-    # permission_classes = [permissions.IsAuthenticated]  #Authentication required
+    permission_classes = [permissions.IsAuthenticated]  #Authentication required
 
     def post(self, request):
+        user = request.user
+        if not user.is_authenticated or getattr(user, 'role', None) != 'admin':
+            return Response({"detail": "You do not have permission to perform this action"}, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = FixtureSerializer(data=request.data)
         if serializer.is_valid():
             fixture = serializer.save()
@@ -29,7 +33,13 @@ class FixtureCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class FixtureUpdateView(APIView):    
+    permission_classes = [permissions.IsAuthenticated]
+
     def patch(self, request, itemId):
+        user = request.user
+        if not user.is_authenticated or getattr(user, 'role', None) != 'admin':
+            return Response({"detail": "You do not have permission to perform this action"}, status=status.HTTP_403_FORBIDDEN)
+        
         try:
             fixture = Fixture.objects.get(id=itemId)
         except Fixture.DoesNotExist:
@@ -47,7 +57,13 @@ class FixtureUpdateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class FixtureDeleteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def delete(self, request, itemId):
+        user = request.user
+        if not user.is_authenticated or getattr(user, 'role', None) != 'admin':
+            return Response({"detail": "You do not have permission to perform this action"}, status=status.HTTP_403_FORBIDDEN)
+        
         try:
             fixture = Fixture.objects.get(id=itemId)
         except Fixture.DoesNotExist:
@@ -56,6 +72,7 @@ class FixtureDeleteView(APIView):
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
     
 class FixtureListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     def get(self, request):
         page = int(request.GET.get('page',1))   #Retrieve query parameters(page, size)
         size = int(request.GET.get('size',10))
@@ -86,3 +103,5 @@ class FixtureListView(APIView):
             "totalCount": total_count,
             "data": data
         }, status=status.HTTP_200_OK)
+    
+    
