@@ -6,8 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class TeacherSerializer(serializers.ModelSerializer) :
     class Meta:
         model = Teacher
-        fields = ['id', 'teacher_id', 'passwd', 'teacher_name', 'age', 'position', 'sex']
-        read_only_fields = ['id']
+        fields = ['teacher_id', 'teacher_name', 'age', 'position', 'sex']
+        # read_only_fields = ['id']
     
     def validate_teacher_id(self, value):
         """
@@ -39,9 +39,9 @@ class TeacherLoginSerializer(serializers.Serializer) :
         except Teacher.DoesNotExist :
             raise serializers.ValidationError("존재하지 않는 교사입니다.")
         
-        #teacher 테이블에서 passwd확인
-        if teacher.passwd != data['passwd'] :
-            raise serializers.ValidationError("비밀번호가 올바르지 않습니다.")
+        #teacher 테이블에서 passwd확인 - teacher테이블에 필드 삭제, 여기서 확인 기능 필요 X
+        # if teacher.passwd != data['passwd'] :
+        #     raise serializers.ValidationError("비밀번호가 올바르지 않습니다.")
         
         refresh = RefreshToken.for_user(teacher)
 
