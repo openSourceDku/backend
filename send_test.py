@@ -89,4 +89,4 @@ def reportsSend() :
     print("응답 상태", response.status_code)
     print("응답 상태", response.text)
 
-# logout()
+register()
