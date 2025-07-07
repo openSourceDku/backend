@@ -14,5 +14,5 @@ urlpatterns = [
     path("classes/", views.TeacherClassListView.as_view, name="classes"),
     # path("classes/{classId}", ),
     # path("reports/todo", ),
-    # path("reports/fixures", ),
+    path("fixures/", views.FixtureListView.as_view, name= "fixures"),
 ]

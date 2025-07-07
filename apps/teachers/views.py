@@ -1,20 +1,29 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
+
 from .models import Teacher
 from .serializers import TeacherSerializer
+
 from django.core.mail import send_mail
 from django.conf import settings
+
 from apps.students.models import Student
 from apps.students.serializers import StudentSerializer
+
 from apps.classes.models import Class
 from apps.classes.serializers import ClassSerializer
+
+from apps.managers.models import Fixture
+from apps.managers.serializers import FixtureSerializer
 
 # Create your views here.
 
@@ -268,3 +277,20 @@ class TeacherClassListView(APIView):
         class_queryset = Class.objects.filter(teacher__user=user)
         serializer = ClassSerializer(class_queryset, many=True)
         return Response({'classes': serializer.data})
+    
+class FixtureListView(APIView):
+    permission_classes = [IsAuthenticated]  # JWT 인증 필요
+
+    def get(self, request):
+        fixtures = Fixture.objects.all()
+        serializer = FixtureSerializer(fixtures, many=True)
+        # "count" → "quantity" 이름 변경
+        formatted_data = [
+            {
+                "name": item["name"],
+                "price": item["price"],
+                "quantity": item["count"]
+            }
+            for item in serializer.data
+        ]
+        return Response({"fixtures": formatted_data})
