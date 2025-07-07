@@ -2,7 +2,7 @@ import requests
 # url = "127.0.0.1:8000/acounts/register/"
 
 def register() :
-    url = "http://127.0.0.1:8000/acounts/register/"
+    url = "http://127.0.0.1:8000/api/auth/register/"
     data = {
         "username": "kimgeon",
         "password": "1234!",

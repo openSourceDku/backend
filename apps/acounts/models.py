@@ -16,6 +16,16 @@ class CustomUserManager(BaseUserManager):
         user = self.model(username=username, role=role)
         user.set_password(password)
         user.save(using=self._db)
+
+        #role이 admin일 경우 manager테이블에 자동 추가
+        if role == 'admin':
+            from apps.managers.models import Manager
+            Manager.objects.create(
+                manager_id=user,
+                name=username,  # 이름을 username으로 기본 설정
+                position='관리자'  # position 기본값, 원하면 수정 가능
+            )
+            
         return user
 
     def create_superuser(self, username, role="admin", password=None):
