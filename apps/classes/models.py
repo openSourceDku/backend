@@ -17,3 +17,13 @@ class Class(models.Model):
 
     def __str__(self):
         return self.class_name 
+    
+class Schedule(models.Model) :
+    schedule_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    date = models.CharField(max_length=100)
+    todo = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.schedule_id} = {self.name} : {self.date}"
+    
