@@ -4,6 +4,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from .models import Teacher
@@ -207,3 +208,50 @@ def get_class_students(request, class_id):
     return Response({'students': serializer.data}, status=status.HTTP_200_OK)
 
 ##--------------------------------------------------------------------## 여기까지 manager view로 옮겨주세요
+
+class ReportSendView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not (request.user and request.user.role == 'admin') :
+            return Response({"detail": "You do not have permission to perform this action"}, status=status.HTTP_403_FORBIDDEN)
+
+        data = request.data
+
+        common = data.get('common', {})
+        recipients = data.get('recipients', [])
+
+        result_details = []
+        sent_common = False
+        sent_individual_count = 0
+
+        # 1. 공통 메시지 처리
+        if 'subject' in common and 'content' in common:
+            # TODO: 공통 메시지 전송 로직 구현 예정
+            # 예: 모든 학생의 학부모에게 메시지를 전송
+            sent_common = True
+
+        # 2. 개별 메시지 처리
+        for recipient in recipients:
+            student_id = recipient.get('studentId')
+            personal_msg = recipient.get('personalMessage')
+
+            if student_id and personal_msg:
+                # TODO: student_id에게 개인 메시지 전송 로직 구현 예정
+                sent_individual_count += 1
+                result_details.append({
+                    "studentId": student_id,
+                    "result": "OK"
+                })
+            else:
+                result_details.append({
+                    "studentId": student_id or "unknown",
+                    "result": "INVALID_DATA"
+                })
+
+        return Response({
+            "status": "success",
+            "sentCommon": sent_common,
+            "sentIndividual": sent_individual_count,
+            "details": result_details
+        }, status=status.HTTP_200_OK)
