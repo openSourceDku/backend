@@ -122,7 +122,6 @@ class TeacherAPIView(APIView):
             teachers_data = []
             for teacher in serializer.data:
                 teachers_data.append({
-                    "id": teacher['id'],
                     "teacher_id": teacher['teacher_id'],
                     "teacher_name": teacher['teacher_name'],
                     "age": teacher['age'],
@@ -140,7 +139,10 @@ class TeacherAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     def post(self, request):
         try:
-            serializer = TeacherSerializer(data=request.data)
+            user = request.user
+            data = request.data.copy()
+            data['teacher_id'] = user.id
+            serializer = TeacherSerializer(data=data)
             if serializer.is_valid():
                 teacher = serializer.save()
                 return Response({
