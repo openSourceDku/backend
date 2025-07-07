@@ -12,5 +12,5 @@ urlpatterns = [
     path('fixtures', FixtureCreateView.as_view(), name='fixture-create'),
     path('fixtures/{itemId}', FixtureUpdateView.as_view(), name='fixture-undate'),
     path('fixtures/{itemId}', FixtureDeleteView.as_view(), name='fixture-delete'),
-    path('fixtures/{itemId}', FixtureListView.as_view(), name='fixture-list'),
+    path('fixtures', FixtureListView.as_view(), name='fixture-list'),
 ]
