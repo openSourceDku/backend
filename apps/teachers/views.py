@@ -16,6 +16,11 @@ from apps.classes.models import Class
 
 # Create your views here.
 
+##--------------------------------------------------------------------## 여기서 부터....
+# api명세서에는 모든 데이터의 등록은 api/admin/에서 진행합니다.
+# 이곳에서 처리되는 모든 함수는 api/teacher/ 에서 진행될 기능들 입니다.
+# 해당 기능은 reports, classes, classes/{classId}, todo, fixtures 입니다.
+
 def index(request) :
     return HttpResponse("hello teacher apps")
 
@@ -200,3 +205,5 @@ def get_class_students(request, class_id):
     students = class_obj.students.all()
     serializer = StudentSerializer(students, many=True)
     return Response({'students': serializer.data}, status=status.HTTP_200_OK)
+
+##--------------------------------------------------------------------## 여기까지 manager view로 옮겨주세요

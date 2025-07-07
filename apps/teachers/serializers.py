@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Teacher
 from rest_framework_simplejwt.tokens import RefreshToken
 
+##serializer의 필드값 변경해야 합니다.
 class TeacherSerializer(serializers.ModelSerializer) :
     class Meta:
         model = Teacher
