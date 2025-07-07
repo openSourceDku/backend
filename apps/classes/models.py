@@ -13,7 +13,7 @@ class Class(models.Model):
     class_time = models.CharField(max_length=100)
     classroom = models.ForeignKey(ClassRoom, on_delete=models.CASCADE, related_name='classes')
     teacher = models.ForeignKey('teachers.Teacher', on_delete=models.CASCADE, related_name='classes')
-    students = models.ManyToManyField('students.Student', related_name='classes')
+    # students = models.ManyToManyField('students.Student', related_name='classes')
 
     def __str__(self):
         return self.class_name 

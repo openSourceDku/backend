@@ -9,10 +9,15 @@ class TeacherSimpleSerializer(serializers.ModelSerializer):
         fields = ['id', 'teacher_id', 'teacher_name']
 
 class ClassSerializer(serializers.ModelSerializer):
-    teacher = TeacherSimpleSerializer(read_only=True)
+    classId = serializers.IntegerField(source='id')
+    className = serializers.CharField(source='class_name')
+    time = serializers.IntegerField(source='class_time')
+    content = serializers.CharField(source='class_name')  # content를 위한 필드가 모델에 없으므로 class_name 임시 사용
+    classroom = serializers.IntegerField(source='classroom.id')
+
     class Meta:
         model = Class
-        fields = ['id', 'class_name', 'class_time', 'teacher']
+        fields = ['classId', 'className', 'time', 'content', 'classroom']
 
 class ClassRoomSerializer(serializers.ModelSerializer):
     classes = ClassSerializer(many=True, read_only=True)

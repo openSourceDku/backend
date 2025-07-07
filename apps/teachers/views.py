@@ -14,6 +14,7 @@ from django.conf import settings
 from apps.students.models import Student
 from apps.students.serializers import StudentSerializer
 from apps.classes.models import Class
+from apps.classes.serializers import ClassSerializer
 
 # Create your views here.
 
@@ -255,3 +256,15 @@ class ReportSendView(APIView):
             "sentIndividual": sent_individual_count,
             "details": result_details
         }, status=status.HTTP_200_OK)
+
+class TeacherClassListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        # if user.role != 'teacher':
+        #     return Response({'detail': '접근 권한이 없습니다.'}, status=403)
+
+        class_queryset = Class.objects.filter(teacher__user=user)
+        serializer = ClassSerializer(class_queryset, many=True)
+        return Response({'classes': serializer.data})
