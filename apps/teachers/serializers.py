@@ -30,7 +30,6 @@ class TeacherLoginSerializer(serializers.Serializer) :
     로그인 요청의 필드중 role == "teacher" 일때 실행
     '''
     teacher_id = serializers.CharField()
-    passwd = serializers.CharField()
 
     def validate(self, data) :
         #teacher 테이블에서 id 확인
@@ -38,10 +37,6 @@ class TeacherLoginSerializer(serializers.Serializer) :
             teacher = Teacher.objects.get(teacher_id = data['teacher_id'])
         except Teacher.DoesNotExist :
             raise serializers.ValidationError("존재하지 않는 교사입니다.")
-        
-        #teacher 테이블에서 passwd확인 - teacher테이블에 필드 삭제, 여기서 확인 기능 필요 X
-        # if teacher.passwd != data['passwd'] :
-        #     raise serializers.ValidationError("비밀번호가 올바르지 않습니다.")
         
         refresh = RefreshToken.for_user(teacher)
 
