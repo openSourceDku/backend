@@ -1,8 +1,8 @@
 import requests
 # url = "127.0.0.1:8000/acounts/register/"
 
-ACCESS = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUxOTk1Mzg5LCJpYXQiOjE3NTE5OTM1ODksImp0aSI6IjVjNTYyZDQxMzRiZTRhMjRhNmRmOTcyNGRlMjYxOThmIiwidXNlcl9pZCI6M30.Lo9xP8BlRSdzt14756BoJodM4eL5sP1A8kf1c3btimg"
-REFRESH = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MjU5ODM4OSwiaWF0IjoxNzUxOTkzNTg5LCJqdGkiOiJkOTk5MDkzY2RkY2U0ODEzYmE4MjE1NGM2NjQzNTBiNCIsInVzZXJfaWQiOjN9.R5FtvbL95nyURU0-gzQO8r_vizvAsiF2D0WVq1f7W1Q"
+ACCESS = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUxOTk3NzM0LCJpYXQiOjE3NTE5OTM1ODksImp0aSI6IjhlMjcyMzAyYjQzMjRiNzBhOTI4NjBhOWVjN2U1ZGQyIiwidXNlcl9pZCI6M30.HHUOoegltVGbp07MulqEsRKaj_0kYr6EfgtkcMfeImc"
+REFRESH = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MjYwMDczNCwiaWF0IjoxNzUxOTk1OTM0LCJqdGkiOiI5MGZlNzJkNmYxZTM0MDA1OWU5NjA1OGU3NDE2MzhiZSIsInVzZXJfaWQiOjN9.h9HGAMNLQDSXTYRG1dvvOr1cwSUbs5L8ROFPmia8u5Y"
 
 def register() :
     url = "http://127.0.0.1:8000/api/auth/register/"
@@ -29,9 +29,9 @@ def login() :
     print("응답 상태", response.text)
 
 def refresh() :
-    url = "http://127.0.0.1:8000/acounts/refresh/"
+    url = "http://127.0.0.1:8000/api/auth/refresh/"
     data = {
-        "refresh": 'yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MjM3ODEzMCwiaWF0IjoxNzUxNzczMzMwLCJqdGkiOiJhOTQ4ODk5ZTE0Njg0YWM0YTFiZDA2ZTExZjA1MjAxOSIsInVzZXJfaWQiOjN9.zcEUZUB36FE8YrNetZl-sSc8dFrWbaUpvjIV-f5mzO0'
+        "refresh": REFRESH
     }
 
     response = requests.post(url, json=data)
@@ -173,6 +173,8 @@ if __name__ == "__main__":
     # else:
     #     print("로그인 실패 테스트 진행 불가")
     #login()
+    #refresh()
     #create_fixture()
-    #update_fixture(2)
+    #update_fixture(1)
+    #list_fixtures()
     delete_fixture(2)
