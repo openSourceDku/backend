@@ -116,9 +116,11 @@ class FixtureListView(APIView):
 class TeacherAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        user = request.user
+        user = request.user # CustomUser 인식
+
         if not hasattr(user, 'role') or user.role != 'admin':
             return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
+        
         try:
             teachers = Teacher.objects.all()
             serializer = TeacherSerializer(teachers, many=True)
@@ -140,17 +142,20 @@ class TeacherAPIView(APIView):
                 'message': '서버 내부 오류가 발생했습니다.',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
     def post(self, request):
         # TODO: customer테의블의 id값이 teacher_id의 값으로 설정함.
-        user = request.user
+        user = request.user # CustomUser 인식
         if not hasattr(user, 'role') or user.role != 'admin':
             return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
+        
         try:
             data = request.data.copy()
             data['teacher_id'] = user.id
             serializer = TeacherSerializer(data=data)
             if serializer.is_valid():
                 teacher = serializer.save()
+
                 return Response({
                     'message': '교사가 성공적으로 등록되었습니다.',
                     'teacher': TeacherSerializer(teacher).data
