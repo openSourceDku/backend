@@ -6,17 +6,17 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView
 )
 from .views import FixtureCreateView, FixtureUpdateView, FixtureDeleteView, FixtureListView
+from apps.classes.views import ScheduleCreateView
 
 urlpatterns = [
-    path('', views.index, name = 'index'),
-    path('fixtures', FixtureCreateView.as_view(), name='fixture-create'),
-    path('fixtures/<int:itemId>', FixtureUpdateView.as_view(), name='fixture-undate'),
-    path('fixtures/<int:itemId>', FixtureDeleteView.as_view(), name='fixture-delete'),
-    path('fixtures', FixtureListView.as_view(), name='fixture-list'),
-    path('teachers/', views.TeacherAPIView.as_view(), name='teachers_api'),
-    # path('classes/classrooms', ),
-    # path('classes/', ),
-    # path('/class-list/<int:classId>',)
-    # path('teachers/classes/<int:class_id>', views.GetClassStudentsView.as_view(), name='get_class_students'),
-    # path('teachers/classes/', views.TeacherClassListView.as_view(), name='classes'),
+    path('', views.index, name = 'index'), #동작 확인
+    path('fixtures', FixtureCreateView.as_view(), name='fixture-create'), #비품 등록
+    path('fixtures/<int:itemId>', FixtureUpdateView.as_view(), name='fixture-undate'), #비품 수정
+    path('fixtures/<int:itemId>', FixtureDeleteView.as_view(), name='fixture-delete'), #비품 삭제
+    path('fixtures', FixtureListView.as_view(), name='fixture-list'), #비품 리스트 조회
+    path('teachers/', views.TeacherAPIView.as_view(), name='teachers_api'), #선생 등록, 수정, 삭제, 조회
+    # path('classes/classrooms', ), #전체 반 목록 조회
+    path('classes/', ScheduleCreateView.as_view(), "classes"),   #새로운 반 등록
+    # path('class-list/<int:classId>',) #반 수정, 삭제
+    # path('students/',)
 ]
