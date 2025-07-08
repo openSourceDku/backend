@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from .models import ClassRoom, Class
-from .serializers import ClassRoomSerializer, ClassSerializer
+from .models import ClassRoom, Class, Schedule
+from .serializers import ClassRoomSerializer, ClassSerializer, ScheduleSerializer
 from apps.teachers.models import Teacher
 from apps.students.models import Student
 from django.shortcuts import get_object_or_404
@@ -90,3 +90,19 @@ def class_detail(request, class_id):
     elif request.method == 'DELETE':
         class_obj.delete()
         return Response({'message': '수업이 성공적으로 삭제되었습니다.'}, status=status.HTTP_204_NO_CONTENT) 
+    
+class ScheduleCreateView(APIView):
+    def post(self, request):
+        class_name = request.data.get("className")
+        todos = request.data.get("todos", [])
+
+        if not class_name or not todos:
+            return Response({"error": "className과 todos는 필수입니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+        saved = []
+        for todo in todos:
+            schedule = Schedule(name=class_name, date=todo.get("date"), todo=todo.get("task"))
+            schedule.save()
+            saved.append(ScheduleSerializer(schedule).data)
+
+        return Response({"message": f"{len(saved)}개의 일정이 저장되었습니다.", "schedules": saved}, status=status.HTTP_201_CREATED)

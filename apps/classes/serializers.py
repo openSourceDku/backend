@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import ClassRoom, Class
 from apps.teachers.models import Teacher
 from apps.students.models import Student
+from .models import Schedule
 
 class TeacherSimpleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,3 +25,8 @@ class ClassRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClassRoom
         fields = ['id', 'classroom', 'classes'] 
+
+class ScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = ['schedule_id', 'name', 'date', 'todo']
