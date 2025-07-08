@@ -21,6 +21,7 @@ from apps.classes.serializers import ClassSerializer
 
 from apps.managers.models import Fixture
 from apps.managers.serializers import FixtureSerializer
+from django.http import HttpResponse
 
 # Create your views here.
 

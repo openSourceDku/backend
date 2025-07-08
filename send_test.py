@@ -108,7 +108,7 @@ def create_fixture(access_token):
     return None
 
 def update_fixture(access_token, itemId):
-    url = "http://127.0.0.1:8000/fixtures/{itemId}"
+    url = "http://127.0.0.1:8000/fixtures/<int:itemId>"
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}"
@@ -123,7 +123,7 @@ def update_fixture(access_token, itemId):
     print("비품 수정 응답 내용:", response.text)
 
 def delete_fixture(access_token, itemId):
-    url = "http://127.0.0.1:8000/fixtures/{itemId}"
+    url = "http://127.0.0.1:8000/fixtures/<int:itemId>"
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}"
@@ -142,6 +142,7 @@ def list_fixtures(access_token):
     print("비훔 리스트 조회 응답 상태:", response.status_code)
     print("비품 리스트 조회 응답 내용:", response.text)
 
+'''
 #전체 테스트 실행
 if __name__ == "__main__":
     register()
@@ -159,3 +160,11 @@ if __name__ == "__main__":
         list_fixtures(access_token) #비품 리스트 재조회
     else:
         print("로그인 실패로 비품관리 테스트 진행할 수 없습니다.")
+'''
+if __name__ == "__main__":
+    register()
+    token = login()
+    if token:
+        item_id = create_fixture(token)
+    else:
+        print("로그인 실패 테스트 진행 불가")
