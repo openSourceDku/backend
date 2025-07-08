@@ -16,6 +16,7 @@ from apps.students.models import Student
 from apps.students.serializers import StudentSerializer
 from apps.classes.models import Class
 from apps.classes.serializers import ClassSerializer
+from apps.acounts.models import CustomUser
 
 # Create your views here.
 
@@ -144,37 +145,102 @@ class TeacherAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def post(self, request):
-        # TODO: customer테의블의 id값이 teacher_id의 값으로 설정함.
-        user = request.user # CustomUser 인식
+        user = request.user
         if not hasattr(user, 'role') or user.role != 'admin':
             return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
         
         try:
             data = request.data.copy()
-            data['teacher_id'] = user.id
-            serializer = TeacherSerializer(data=data)
+            
+            # 1️⃣ CustomUser 생성
+            teacher_username = data.get('teacher_id')
+            teacher_password = data.get('passwd')
+            
+            if not teacher_username or not teacher_password:
+                return Response({
+                    'message': 'teacher_id와 passwd는 필수입니다.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if CustomUser.objects.filter(username=teacher_username).exists():
+                return Response({
+                    'message': '이미 존재하는 사용자입니다.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            new_user = CustomUser.objects.create_user(
+                username=teacher_username,
+                role='teacher',
+                password=teacher_password
+            )
+
+            # 2️⃣ Teacher 모델 등록
+            teacher_data = {
+                'teacher_id': new_user.id,
+                'teacher_name': data.get('teacher_name'),
+                'age': data.get('age'),
+                'position': data.get('position'),
+                'sex': data.get('sex'),
+            }
+
+            serializer = TeacherSerializer(data=teacher_data)
             if serializer.is_valid():
                 teacher = serializer.save()
-
                 return Response({
                     'message': '교사가 성공적으로 등록되었습니다.',
                     'teacher': TeacherSerializer(teacher).data
                 }, status=status.HTTP_201_CREATED)
             else:
+                # 유저는 생성했지만 교사 정보 유효성 실패 -> 유저 삭제
+                new_user.delete()
                 return Response({
-                    'message': '잘못된 요청입니다.',
+                    'message': '교사 정보가 유효하지 않습니다.',
                     'errors': serializer.errors
                 }, status=status.HTTP_400_BAD_REQUEST)
+        
         except ValidationError as e:
             return Response({
                 'message': '잘못된 요청입니다.',
                 'errors': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
             return Response({
                 'message': '서버 내부 오류가 발생했습니다.',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # def post(self, request):
+        #     # TODO: customer테의블의 id값이 teacher_id의 값으로 설정함.
+        #     user = request.user # CustomUser 인식
+        #     if not hasattr(user, 'role') or user.role != 'admin':
+        #         return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
+            
+        #     try:
+        #         data = request.data.copy() # User데이터 가져오기
+        #         data['teacher_id'] = user.id 
+        #         serializer = TeacherSerializer(data=data)
+        #         if serializer.is_valid():
+        #             teacher = serializer.save()
+
+        #             return Response({
+        #                 'message': '교사가 성공적으로 등록되었습니다.',
+        #                 'teacher': TeacherSerializer(teacher).data
+        #             }, status=status.HTTP_201_CREATED)
+        #         else:
+        #             return Response({
+        #                 'message': '잘못된 요청입니다.',
+        #                 'errors': serializer.errors
+        #             }, status=status.HTTP_400_BAD_REQUEST)
+        #     except ValidationError as e:
+        #         return Response({
+        #             'message': '잘못된 요청입니다.',
+        #             'errors': str(e)
+        #         }, status=status.HTTP_400_BAD_REQUEST)
+        #     except Exception as e:
+        #         return Response({
+        #             'message': '서버 내부 오류가 발생했습니다.',
+        #             'error': str(e)
+        #         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def patch(self, request):
         user = request.user
         if not hasattr(user, 'role') or user.role != 'admin':
@@ -210,6 +276,7 @@ class TeacherAPIView(APIView):
                 'message': '서버 내부 오류가 발생했습니다.',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
     def delete(self, request):
         user = request.user
         if not hasattr(user, 'role') or user.role != 'admin':
