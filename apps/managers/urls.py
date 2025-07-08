@@ -17,6 +17,6 @@ urlpatterns = [
     path('teachers/', views.TeacherAPIView.as_view(), name='teachers_api'), #선생 등록, 수정, 삭제, 조회
     path('classes/classrooms', ClassRoomListAPIView.as_view(), name= "classrooms"), #전체 반 목록 조회
     path('classes/', ScheduleCreateView.as_view(), name="classes"),   #새로운 반 등록
-    path('class-list/<int:classId>', ClassDetailAPIView, name="classDetail") #반 수정, 삭제
+    path('class-list/<int:classId>', ClassDetailAPIView.as_view(), name="classDetail") #반 수정, 삭제
     # path('students/',)
 ]
