@@ -276,7 +276,6 @@ class TeacherAPIView(APIView):
                 'message': '서버 내부 오류가 발생했습니다.',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
     def delete(self, request):
         user = request.user
         if not hasattr(user, 'role') or user.role != 'admin':
@@ -298,29 +297,5 @@ class TeacherAPIView(APIView):
                 'message': '서버 내부 오류가 발생했습니다.',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-class GetClassStudentsView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self, request, class_id):
-        user = request.user
-        if not hasattr(user, 'role') or user.role != 'admin':
-            return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
-        try:
-            class_obj = Class.objects.get(id=class_id)
-        except Class.DoesNotExist:
-            return Response({'message': '해당 classId의 수업이 존재하지 않습니다.'}, status=status.HTTP_404_NOT_FOUND)
-        students = class_obj.students.all()
-        serializer = StudentSerializer(students, many=True)
-        return Response({'students': serializer.data}, status=status.HTTP_200_OK)
-
-class TeacherClassListView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self, request):
-        user = request.user
-        if not hasattr(user, 'role') or user.role != 'admin':
-            return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
-        class_queryset = Class.objects.all()
-        serializer = ClassSerializer(class_queryset, many=True)
-        return Response({'classes': serializer.data})
     
     

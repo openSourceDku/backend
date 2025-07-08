@@ -14,6 +14,6 @@ urlpatterns = [
     path('fixtures/{itemId}', FixtureDeleteView.as_view(), name='fixture-delete'),
     path('fixtures', FixtureListView.as_view(), name='fixture-list'),
     path('teachers/', views.TeacherAPIView.as_view(), name='teachers_api'),
-    path('teachers/classes/<int:class_id>', views.GetClassStudentsView.as_view(), name='get_class_students'),
-    path('teachers/classes/', views.TeacherClassListView.as_view(), name='classes'),
+    # path('teachers/classes/<int:class_id>', views.GetClassStudentsView.as_view(), name='get_class_students'),
+    # path('teachers/classes/', views.TeacherClassListView.as_view(), name='classes'),
 ]

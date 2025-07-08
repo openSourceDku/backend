@@ -10,7 +10,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path("reports/", views.ReportSendView.as_view, name="reports"),
     path("classes/", views.TeacherClassListView.as_view, name="classes"),
-    # path("classes/{classId}", ), # 학생 구현 안함 
+    path('classes/<int:class_id>', views.GetClassStudentsView.as_view(), name='get_class_students'),
     # path("reports/todo", ),       
     path("fixures/", views.FixtureListView.as_view, name= "fixures"),
 ]
