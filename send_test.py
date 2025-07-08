@@ -1,6 +1,9 @@
 import requests
 # url = "127.0.0.1:8000/acounts/register/"
 
+ACCESS = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUxOTk1Mzg5LCJpYXQiOjE3NTE5OTM1ODksImp0aSI6IjVjNTYyZDQxMzRiZTRhMjRhNmRmOTcyNGRlMjYxOThmIiwidXNlcl9pZCI6M30.Lo9xP8BlRSdzt14756BoJodM4eL5sP1A8kf1c3btimg"
+REFRESH = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MjU5ODM4OSwiaWF0IjoxNzUxOTkzNTg5LCJqdGkiOiJkOTk5MDkzY2RkY2U0ODEzYmE4MjE1NGM2NjQzNTBiNCIsInVzZXJfaWQiOjN9.R5FtvbL95nyURU0-gzQO8r_vizvAsiF2D0WVq1f7W1Q"
+
 def register() :
     url = "http://127.0.0.1:8000/api/auth/register/"
     data = {
@@ -14,7 +17,7 @@ def register() :
     print("응답 상태", response.text)
 
 def login() :
-    url = "http://127.0.0.1:8000/acounts/login/"
+    url = "http://127.0.0.1:8000/api/auth/login/"
     data = {
         "username": "kimgeon",
         "password": "1234!",
@@ -89,11 +92,11 @@ def reportsSend() :
     print("응답 상태", response.status_code)
     print("응답 상태", response.text)
 
-def create_fixture(access_token):
-    url = "http://127.0.0.1:8000/fixtures"
+def create_fixture():
+    url = "http://127.0.0.1:8000/api/admin/fixtures/"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {access_token}"
+        "Authorization": f"Bearer {ACCESS}"
     }
     data = {
         "name": "마커펜",
@@ -107,11 +110,11 @@ def create_fixture(access_token):
         return response.json().get("itemId")
     return None
 
-def update_fixture(access_token, itemId):
-    url = "http://127.0.0.1:8000/fixtures/<int:itemId>"
+def update_fixture(itemId):
+    url = f"http://127.0.0.1:8000/api/admin/fixtures/{itemId}"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {access_token}"
+        "Authorization": f"Bearer {ACCESS}"
     }
     data = {
         "name": "지우개",
@@ -122,21 +125,21 @@ def update_fixture(access_token, itemId):
     print("비품 수정 응담 상태:", response.status_code)
     print("비품 수정 응답 내용:", response.text)
 
-def delete_fixture(access_token, itemId):
-    url = "http://127.0.0.1:8000/fixtures/<int:itemId>"
+def delete_fixture(itemId):
+    url = f"http://127.0.0.1:8000/api/admin/fixtures/{itemId}"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {access_token}"
+        "Authorization": f"Bearer {ACCESS}"
     }
     response = requests.delete(url, headers=headers)
     print("비품 삭제 응답 상태:", response.status_code)
     print("비품 삭제 응답 내용:", response.text)
 
-def list_fixtures(access_token):
-    url = "http://127.0.0.1:8000/fixtures"
+def list_fixtures():
+    url = "http://127.0.0.1:8000/api/admin/fixtures"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {access_token}"
+        "Authorization": f"Bearer {ACCESS}"
     }
     response = requests.get(url, headers=headers)
     print("비훔 리스트 조회 응답 상태:", response.status_code)
@@ -161,10 +164,15 @@ if __name__ == "__main__":
     else:
         print("로그인 실패로 비품관리 테스트 진행할 수 없습니다.")
 '''
+
 if __name__ == "__main__":
-    register()
-    token = login()
-    if token:
-        item_id = create_fixture(token)
-    else:
-        print("로그인 실패 테스트 진행 불가")
+    # register()
+    # token = login()
+    # if token:
+    #     item_id = create_fixture(token)
+    # else:
+    #     print("로그인 실패 테스트 진행 불가")
+    #login()
+    #create_fixture()
+    #update_fixture(2)
+    delete_fixture(2)

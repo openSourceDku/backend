@@ -42,7 +42,7 @@ class FixtureCreateView(APIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class FixtureUpdateView(APIView):    
+class FixtureUpdateView(APIView):    #코드수정
     permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request, itemId):
