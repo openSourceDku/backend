@@ -14,7 +14,7 @@ from apps.teachers.models import Teacher
 from apps.teachers.serializers import TeacherSerializer
 from apps.students.models import Student
 from apps.students.serializers import StudentSerializer
-from apps.classes.models import Class
+from apps.classes.models import Class, ClassRoom
 from apps.classes.serializers import ClassSerializer
 from apps.acounts.models import CustomUser
 
@@ -298,7 +298,76 @@ class TeacherAPIView(APIView):
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+class ClassRoomListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        result = []
+
+        classrooms = ClassRoom.objects.prefetch_related('classes__teacher__teacher_id').all()
+
+        for classroom in classrooms:
+            class_list = []
+            for cls in classroom.classes.all():
+                class_list.append({
+                    "id": cls.id,
+                    "class_name": cls.class_name,
+                    "class_time": cls.class_time,
+                    "teacher": {
+                        "id": cls.teacher.id,
+                        "teacher_id": cls.teacher.teacher_id.username,
+                        "teacher_name": cls.teacher.teacher_name
+                    }
+                })
+            result.append({
+                "id": classroom.id,
+                "classroom": classroom.classroom,
+                "classes": class_list
+            })
+
+        return Response({"classes": result})
     
-#테스트코드용
-def home(request):
-    return HttpResponse("Welcome")
+class ClassDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, class_id):
+        class_obj = get_object_or_404(Class, id=class_id)
+        data = request.data
+
+        # classroom 변경
+        classroom_name = data.get('classroom')
+        if classroom_name:
+            classroom, _ = ClassRoom.objects.get_or_create(classroom=classroom_name)
+            class_obj.classroom = classroom
+
+        # class_name 변경
+        if 'class_name' in data:
+            class_obj.class_name = data['class_name']
+
+        # class_time 변경
+        if 'class_time' in data:
+            class_obj.class_time = data['class_time']
+
+        # teacher 변경
+        if 'teacher_id' in data:
+            try:
+                teacher = Teacher.objects.get(id=data['teacher_id'])
+                class_obj.teacher = teacher
+            except Teacher.DoesNotExist:
+                return Response({'message': '해당 teacher_id가 존재하지 않습니다.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # # students 변경 # students안씀
+        # if 'student_ids' in data:
+        #     student_ids = data['student_ids']
+        #     if isinstance(student_ids, list):
+        #         students = Student.objects.filter(id__in=student_ids)
+        #         class_obj.students.set(students)
+
+        class_obj.save()
+        class_data = ClassSerializer(class_obj).data
+        return Response({'class': class_data}, status=status.HTTP_200_OK)
+
+    def delete(self, request, class_id):
+        class_obj = get_object_or_404(Class, id=class_id)
+        class_obj.delete()
+        return Response({'message': '수업이 성공적으로 삭제되었습니다.'}, status=status.HTTP_204_NO_CONTENT)

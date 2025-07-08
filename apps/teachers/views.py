@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.http import HttpResponse
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
@@ -16,7 +17,7 @@ from django.conf import settings
 from apps.students.models import Student
 from apps.students.serializers import StudentSerializer
 
-from apps.classes.models import Class
+from apps.classes.models import Class, Schedule
 from apps.classes.serializers import ClassSerializer
 
 from apps.managers.models import Fixture
@@ -68,7 +69,6 @@ class ReportSendView(APIView):
             "sentIndividual": sent_individual_count,
             "details": result_details
         }, status=status.HTTP_200_OK)
-
     
 class FixtureListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -112,3 +112,30 @@ class TeacherClassListView(APIView):
         class_queryset = Class.objects.all()
         serializer = ClassSerializer(class_queryset, many=True)
         return Response({'classes': serializer.data})
+    
+class TeacherTodoListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user  # JWT 토큰에서 인증된 CustomUser
+        try:
+            teacher = Teacher.objects.get(teacher_id=user)
+        except Teacher.DoesNotExist:
+            return Response({"detail": "해당 교사 정보가 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        # teacher가 맡은 수업들
+        classes = Class.objects.filter(teacher=teacher)
+
+        # 각 수업에 해당하는 스케줄들 조회
+        schedules = Schedule.objects.filter(schedule_id__in=classes)
+
+        # 응답 포맷 구성
+        todos = []
+        for s in schedules:
+            todos.append({
+                "todoTitle": s.name,
+                "description": s.todo,
+                "date": s.date
+            })
+
+        return Response({"todos": todos}, status=status.HTTP_200_OK)

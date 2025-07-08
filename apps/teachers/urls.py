@@ -8,9 +8,10 @@ from rest_framework_simplejwt.views import (
 
 
 urlpatterns = [
+    path("", views.index, name="reports"), #리포트 전송
     path("reports/", views.ReportSendView.as_view(), name="reports"), #리포트 전송
     path("classes/", views.TeacherClassListView.as_view(), name="classes"), #반 리스트 불러오기
     # path('classes/<int:class_id>', views.GetClassStudentsView.as_view(), name='get_class_students'), #반 학생 불러오기 => 구현 X
-    # path("reports/todo", ), # 할 일 조회       
+    path("reports/todos", views.TeacherTodoListView.as_view(), name="todos"), # 할 일 조회       
     path("fixures/", views.FixtureListView.as_view(), name= "fixures"), # 비품 확인
 ]
