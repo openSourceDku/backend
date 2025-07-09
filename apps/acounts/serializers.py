@@ -47,8 +47,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         response_data = {
             "status": "success",
             "message": "로그인 성공",
-            "access_token": token_data.get("access"),
-            "refresh_token": token_data.get("refresh"),
+            "accessToken": token_data.get("access"),
+            "refreshToken": token_data.get("refresh"),
         }
 
         # 사용자 정보
