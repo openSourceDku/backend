@@ -148,3 +148,5 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',                           #토큰 암호화 알고리즘 : 
     'SIGNING_KEY': SECRET_KEY,                      #토큰 서명 비밀키 (secret_key 재사용)
 }
+
+# APPEND_SLASH = FalseAPPEND_SLASH = False

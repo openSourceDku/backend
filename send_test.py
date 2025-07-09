@@ -4,7 +4,7 @@ import requests
 def register() :
     url = "http://127.0.0.1:8000/api/auth/register/"
     data = {
-        "username": "kimgeon",
+        "username": "admin1",
         "password": "1234!",
         "role": "admin"
     }
@@ -159,3 +159,16 @@ if __name__ == "__main__":
         list_fixtures(access_token) #비품 리스트 재조회
     else:
         print("로그인 실패로 비품관리 테스트 진행할 수 없습니다.")
+
+if __name__ == "__main__":
+    # register()
+    # token = login()
+    # if token:
+    #     item_id = create_fixture(token)
+    # else:
+    #     print("로그인 실패 테스트 진행 불가")
+    login()
+    # create_fixture()
+    # update_fixture(2)
+    # delete_fixture(2)
+    # list_fixtures()
