@@ -19,7 +19,7 @@ class Class(models.Model):
         return self.class_name 
     
 class Schedule(models.Model) :
-    schedule_id = models.AutoField(primary_key=True)
+    schedule_id = models.ForeignKey(Class, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     date = models.CharField(max_length=100)
     todo = models.CharField(max_length=100)

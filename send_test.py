@@ -1,6 +1,8 @@
 import requests
 # url = "127.0.0.1:8000/acounts/register/"
 
+ACCESS = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyMDYxMTU2LCJpYXQiOjE3NTIwNTczNjcsImp0aSI6IjU4Njg0ODgwODY0MDQ3M2M5OTJiYTIwNTNjZTlhODM2IiwidXNlcl9pZCI6M30.t1PdkKsEmc0F7seiwrndw0bwWDrIuCdwJI8vrWgn_Sg"
+REFRESH = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MjY2NDE1NiwiaWF0IjoxNzUyMDU5MzU2LCJqdGkiOiJiNTQwOGQ1ZmJlZTQ0NzIwYThhM2IwYmQ2ODU2MGQzYSIsInVzZXJfaWQiOjN9.-dcSpTsJSeqamdf9nIxJUCJCf2tbjEOL5UUW2qGd0jU"
 def register() :
     url = "http://127.0.0.1:8000/api/auth/register/"
     data = {
@@ -96,13 +98,13 @@ def create_fixture(access_token):
         "Authorization": f"Bearer {access_token}"
     }
     data = {
-        "name": "마커펜",
-        "price": 2000,
-        "count": 10
+        "name": "노트북",
+        "price": 1200000,
+        "count": 3
     }
     response = requests.post(url, headers=headers, json=data)
     print("비품 등록 응답 상태:", response.status_code)
-    print("비품 등록 응담 내용", response.text)
+    print("비품 등록 응답 내용", response.text)
     if response.status_code == 201:
         return response.json().get("itemId")
     return None
@@ -114,9 +116,9 @@ def update_fixture(access_token, itemId):
         "Authorization": f"Bearer {access_token}"
     }
     data = {
-        "name": "지우개",
-        "price": 1200,
-        "count": 12
+        "name": "노트북",
+        "price": 1000000,
+        "count": 2
     }
     response = requests.patch(url, headers=headers, json=data)
     print("비품 수정 응담 상태:", response.status_code)
@@ -142,6 +144,104 @@ def list_fixtures(access_token):
     print("비훔 리스트 조회 응답 상태:", response.status_code)
     print("비품 리스트 조회 응답 내용:", response.text)
 
+# def create_teacher():
+#     url = "http://127.0.0.1:8000/api/admin/teachers/"
+#     headers = {
+#         "Content-Type": "application/json",
+#         "Authorization": f"Bearer {ACCESS}"
+#     }
+#     data = {
+#         "teacher_name": "김선생",
+#         "age": 29,
+#         "position": "수석 교사",
+#         "sex": "M"
+#     }
+#     response = requests.post(url, headers=headers, json=data)
+#     print("선생님 등록 응답 상태:", response.status_code)
+#     print("선생님 등록 응답 내용", response.text)
+#     if response.status_code == 201:
+#         return response.json().get("teacher_id")
+#     return None
+
+def create_sudent(teacher_id, passwd):
+    url = f"http://127.0.0.1:8000/api/students/"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {ACCESS}"
+    }
+    data = {
+
+        'teacher_id':teacher_id,
+        "passwd": passwd,
+        "class_id": 101,
+        "name": "홍길동",
+        "email": "hong@naver.com",
+        "birth_date": 20001010,
+        "gender": "male"
+    }
+    response = requests.post(url, json=data, headers=headers)
+    print("학생 등록 응답 상태:", response.status_code)
+    print("학생 등록 응답 내용", response.text)
+    if response.status_code == 201:
+        return response.json().get("class_id")
+    return None
+
+
+def list_students():
+    url = f"http://127.0.0.1:8000/api/students/"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {ACCESS}"
+    }
+    response = requests.get(url, headers=headers)
+    print("학생 목록조회 응답 상태:", response.status_code)
+    print("학생 목록조회 응답 내용", response.text)
+
+def update_student(student_id):
+    url = f"http://127.0.0.1:8000/api/students/"
+    headers = {"Authorization": f"Bearer {ACCESS}"}
+    data = {"id": student_id, "email": "new@naver.com"}
+    response = requests.patch(url, json=data, headers=headers)
+    print("학생 정보 수정 응답 상태:", response.status_code)
+    print("학생 정보 수정 응답 내용", response.text)
+
+def delete_student(student_id):
+    url = f"http://127.0.0.1:8000/api/students/"
+    headers = {"Authorization": f"Bearer {ACCESS}"}
+    data = {"id": student_id}
+    resp = requests.delete(url, json=data, headers=headers)
+    print("학생 삭제:", resp.status_code)
+    return resp
+
+def list_teacherclasses():
+    url = f"http://127.0.0.1:8000/api/teachers/classes"
+    headers = {"Authorization": f"Bearer {ACCESS}"}
+    response = requests.get(url, headers=headers)
+    print("수업 목록조회 응답 상태:", response.status_code)
+    print("수업 목록조회 응답 내용", response.text)
+
+def create_schedule():
+    url = f"http://127.0.0.1:8000/api/classes/schedule"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {ACCESS}"
+    }
+    data = {
+        "classroom": "201호",
+        "teacherName":{"teacherId":2},
+        "className": "영어",
+        "daysofweek":["화", "목"],
+        "todos": [
+            {
+                "title": "단어시험", "data": "2024-07-15", "task": "단어 50개 암기"
+            }
+        ]
+    }
+    response = requests.patch(url, json=data, headers=headers)
+    print("반/스케줄 등록 응답 상태:", response.status_code)
+    print("반/스케줄 등록 수정 응답 내용", response.text)
+
+'''
 #전체 테스트 실행
 if __name__ == "__main__":
     register()
@@ -159,16 +259,38 @@ if __name__ == "__main__":
         list_fixtures(access_token) #비품 리스트 재조회
     else:
         print("로그인 실패로 비품관리 테스트 진행할 수 없습니다.")
+<<<<<<< HEAD
 
 if __name__ == "__main__":
     # register()
+=======
+'''
+
+if __name__ == "__main__":
+    #register()
+>>>>>>> origin/main
     # token = login()
     # if token:
     #     item_id = create_fixture(token)
     # else:
     #     print("로그인 실패 테스트 진행 불가")
+<<<<<<< HEAD
     login()
     # create_fixture()
     # update_fixture(2)
     # delete_fixture(2)
     # list_fixtures()
+=======
+    #login()
+    #refresh()
+    #create_fixture()
+    #update_fixture(4)
+    #list_fixtures()
+    #delete_fixture(4)
+    #create_sudent()
+    #list_students()
+    #update_student(2)
+    #delete_student(2)
+    list_teacherclasses()
+    #create_schedule()
+>>>>>>> origin/main

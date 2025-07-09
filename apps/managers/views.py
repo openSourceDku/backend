@@ -14,8 +14,9 @@ from apps.teachers.models import Teacher
 from apps.teachers.serializers import TeacherSerializer
 from apps.students.models import Student
 from apps.students.serializers import StudentSerializer
-from apps.classes.models import Class
+from apps.classes.models import Class, ClassRoom
 from apps.classes.serializers import ClassSerializer
+from apps.acounts.models import CustomUser
 
 # Create your views here.
 
@@ -112,13 +113,99 @@ class FixtureListView(APIView):
             "totalCount": total_count,
             "data": data
         }, status=status.HTTP_200_OK)
+
+class FixtureUpdateView(APIView):    
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, itemId):
+        user = request.user
+        if not user.is_authenticated or getattr(user, 'role', None) != 'admin':
+            return Response({"detail": "You do not have permission to perform this action"}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            fixture = Fixture.objects.get(id=itemId)
+        except Fixture.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = FixtureSerializer(fixture, data=request.data, partial=True)
+        if serializer.is_valid():
+            fixture = serializer.save()
+            return Response({
+                "itemId": fixture.id,
+                "name": fixture.name,
+                "price": fixture.price,
+                "count": fixture.count
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, itemId):
+        user = request.user
+        if not user.is_authenticated or getattr(user, 'role', None) != 'admin':
+            return Response({"detail": "You do not have permission to perform this action"}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            fixture = Fixture.objects.get(id=itemId)
+        except Fixture.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        fixture.delete()
+        return Response({}, status=status.HTTP_200_OK)
+    
+class FixtureDeleteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    # def delete(self, request, itemId):
+    #     user = request.user
+    #     if not user.is_authenticated or getattr(user, 'role', None) != 'admin':
+    #         return Response({"detail": "You do not have permission to perform this action"}, status=status.HTTP_403_FORBIDDEN)
+        
+    #     try:
+    #         fixture = Fixture.objects.get(id=itemId)
+    #     except Fixture.DoesNotExist:
+    #         return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+    #     fixture.delete()
+    #     return Response({}, status=status.HTTP_400_BAD_REQUEST)
+    
+class FixtureListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    # def get(self, request):
+    #     page = int(request.GET.get('page',1))   #Retrieve query parameters(page, size)
+    #     size = int(request.GET.get('size',10))
+    #     #Get all data quryset
+    #     queryset = Fixture.objects.all().order_by('id')
+    #     total_count = queryset.count()
+    #     total_page = (total_count + size - 1) // size
+
+    #     #Apply pagination
+    #     start = (page - 1) * size
+    #     end = start + size
+    #     fixtures = queryset[start:end]
+
+    #     #Serialize data and convert id to itemId
+    #     data = [
+    #         {
+    #             "itemId":obj.id,
+    #             "name": obj.name,
+    #             "price": obj.price,
+    #             "count": obj.count
+    #         }
+    #         for obj in fixtures
+    #     ]
+    #     return Response({
+    #         "page": page,
+    #         "size": size,
+    #         "totalPage": total_page,
+    #         "totalCount": total_count,
+    #         "data": data
+    #     }, status=status.HTTP_200_OK)
     
 class TeacherAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        user = request.user
+        user = request.user # CustomUser 인식
+
         if not hasattr(user, 'role') or user.role != 'admin':
             return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
+        
         try:
             teachers = Teacher.objects.all()
             serializer = TeacherSerializer(teachers, many=True)
@@ -140,15 +227,45 @@ class TeacherAPIView(APIView):
                 'message': '서버 내부 오류가 발생했습니다.',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
     def post(self, request):
-        # TODO: customer테의블의 id값이 teacher_id의 값으로 설정함.
         user = request.user
         if not hasattr(user, 'role') or user.role != 'admin':
             return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
+        
         try:
             data = request.data.copy()
-            data['teacher_id'] = user.id
-            serializer = TeacherSerializer(data=data)
+            
+            # 1️⃣ CustomUser 생성
+            teacher_username = data.get('teacher_id')
+            teacher_password = data.get('passwd')
+            
+            if not teacher_username or not teacher_password:
+                return Response({
+                    'message': 'teacher_id와 passwd는 필수입니다.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if CustomUser.objects.filter(username=teacher_username).exists():
+                return Response({
+                    'message': '이미 존재하는 사용자입니다.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            new_user = CustomUser.objects.create_user(
+                username=teacher_username,
+                role='teacher',
+                password=teacher_password
+            )
+
+            # 2️⃣ Teacher 모델 등록
+            teacher_data = {
+                'teacher_id': new_user.id,
+                'teacher_name': data.get('teacher_name'),
+                'age': data.get('age'),
+                'position': data.get('position'),
+                'sex': data.get('sex'),
+            }
+
+            serializer = TeacherSerializer(data=teacher_data)
             if serializer.is_valid():
                 teacher = serializer.save()
                 return Response({
@@ -156,20 +273,58 @@ class TeacherAPIView(APIView):
                     'teacher': TeacherSerializer(teacher).data
                 }, status=status.HTTP_201_CREATED)
             else:
+                # 유저는 생성했지만 교사 정보 유효성 실패 -> 유저 삭제
+                new_user.delete()
                 return Response({
-                    'message': '잘못된 요청입니다.',
+                    'message': '교사 정보가 유효하지 않습니다.',
                     'errors': serializer.errors
                 }, status=status.HTTP_400_BAD_REQUEST)
+        
         except ValidationError as e:
             return Response({
                 'message': '잘못된 요청입니다.',
                 'errors': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
             return Response({
                 'message': '서버 내부 오류가 발생했습니다.',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # def post(self, request):
+        #     # TODO: customer테의블의 id값이 teacher_id의 값으로 설정함.
+        #     user = request.user # CustomUser 인식
+        #     if not hasattr(user, 'role') or user.role != 'admin':
+        #         return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
+            
+        #     try:
+        #         data = request.data.copy() # User데이터 가져오기
+        #         data['teacher_id'] = user.id 
+        #         serializer = TeacherSerializer(data=data)
+        #         if serializer.is_valid():
+        #             teacher = serializer.save()
+
+        #             return Response({
+        #                 'message': '교사가 성공적으로 등록되었습니다.',
+        #                 'teacher': TeacherSerializer(teacher).data
+        #             }, status=status.HTTP_201_CREATED)
+        #         else:
+        #             return Response({
+        #                 'message': '잘못된 요청입니다.',
+        #                 'errors': serializer.errors
+        #             }, status=status.HTTP_400_BAD_REQUEST)
+        #     except ValidationError as e:
+        #         return Response({
+        #             'message': '잘못된 요청입니다.',
+        #             'errors': str(e)
+        #         }, status=status.HTTP_400_BAD_REQUEST)
+        #     except Exception as e:
+        #         return Response({
+        #             'message': '서버 내부 오류가 발생했습니다.',
+        #             'error': str(e)
+        #         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def patch(self, request):
         user = request.user
         if not hasattr(user, 'role') or user.role != 'admin':
@@ -226,29 +381,77 @@ class TeacherAPIView(APIView):
                 'message': '서버 내부 오류가 발생했습니다.',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-class GetClassStudentsView(APIView):
+    
+class ClassRoomListAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self, request, class_id):
-        user = request.user
-        if not hasattr(user, 'role') or user.role != 'admin':
-            return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
-        try:
-            class_obj = Class.objects.get(id=class_id)
-        except Class.DoesNotExist:
-            return Response({'message': '해당 classId의 수업이 존재하지 않습니다.'}, status=status.HTTP_404_NOT_FOUND)
-        students = class_obj.students.all()
-        serializer = StudentSerializer(students, many=True)
-        return Response({'students': serializer.data}, status=status.HTTP_200_OK)
 
-class TeacherClassListView(APIView):
-    permission_classes = [IsAuthenticated]
     def get(self, request):
-        user = request.user
-        if not hasattr(user, 'role') or user.role != 'admin':
-            return Response({'detail': 'You do not have permission to perform this action'}, status=status.HTTP_403_FORBIDDEN)
-        class_queryset = Class.objects.all()
-        serializer = ClassSerializer(class_queryset, many=True)
-        return Response({'classes': serializer.data})
+        result = []
+
+        classrooms = ClassRoom.objects.prefetch_related('classes__teacher__teacher_id').all()
+
+        for classroom in classrooms:
+            class_list = []
+            for cls in classroom.classes.all():
+                class_list.append({
+                    "id": cls.id,
+                    "class_name": cls.class_name,
+                    "class_time": cls.class_time,
+                    "teacher": {
+                        "id": cls.teacher.id,
+                        "teacher_id": cls.teacher.teacher_id.username,
+                        "teacher_name": cls.teacher.teacher_name
+                    }
+                })
+            result.append({
+                "id": classroom.id,
+                "classroom": classroom.classroom,
+                "classes": class_list
+            })
+
+        return Response({"classes": result})
     
-    
+class ClassDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, class_id):
+        class_obj = get_object_or_404(Class, id=class_id)
+        data = request.data
+
+        # classroom 변경
+        classroom_name = data.get('classroom')
+        if classroom_name:
+            classroom, _ = ClassRoom.objects.get_or_create(classroom=classroom_name)
+            class_obj.classroom = classroom
+
+        # class_name 변경
+        if 'class_name' in data:
+            class_obj.class_name = data['class_name']
+
+        # class_time 변경
+        if 'class_time' in data:
+            class_obj.class_time = data['class_time']
+
+        # teacher 변경
+        if 'teacher_id' in data:
+            try:
+                teacher = Teacher.objects.get(id=data['teacher_id'])
+                class_obj.teacher = teacher
+            except Teacher.DoesNotExist:
+                return Response({'message': '해당 teacher_id가 존재하지 않습니다.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # # students 변경 # students안씀
+        # if 'student_ids' in data:
+        #     student_ids = data['student_ids']
+        #     if isinstance(student_ids, list):
+        #         students = Student.objects.filter(id__in=student_ids)
+        #         class_obj.students.set(students)
+
+        class_obj.save()
+        class_data = ClassSerializer(class_obj).data
+        return Response({'class': class_data}, status=status.HTTP_200_OK)
+
+    def delete(self, request, class_id):
+        class_obj = get_object_or_404(Class, id=class_id)
+        class_obj.delete()
+        return Response({'message': '수업이 성공적으로 삭제되었습니다.'}, status=status.HTTP_204_NO_CONTENT)
