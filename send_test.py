@@ -259,28 +259,15 @@ if __name__ == "__main__":
         list_fixtures(access_token) #비품 리스트 재조회
     else:
         print("로그인 실패로 비품관리 테스트 진행할 수 없습니다.")
-<<<<<<< HEAD
-
-if __name__ == "__main__":
-    # register()
-=======
 '''
 
 if __name__ == "__main__":
     #register()
->>>>>>> origin/main
     # token = login()
     # if token:
     #     item_id = create_fixture(token)
     # else:
     #     print("로그인 실패 테스트 진행 불가")
-<<<<<<< HEAD
-    login()
-    # create_fixture()
-    # update_fixture(2)
-    # delete_fixture(2)
-    # list_fixtures()
-=======
     #login()
     #refresh()
     #create_fixture()
@@ -293,4 +280,3 @@ if __name__ == "__main__":
     #delete_student(2)
     list_teacherclasses()
     #create_schedule()
->>>>>>> origin/main
