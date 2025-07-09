@@ -64,10 +64,10 @@ class ScheduleCreateView(APIView):
     
 # @api_view(['GET'])
 # @permission_classes([AllowAny])
-# def classroom_list(request):
-#     rooms = ClassRoom.objects.prefetch_related('classes__teacher').all()
-#     serializer = ClassRoomSerializer(rooms, many=True)
-#     return Response({'classes': serializer.data}, status=status.HTTP_200_OK)
+#    def classroom_list(request):
+#        rooms = ClassRoom.objects.prefetch_related('classes__teacher').all()
+#        serializer = ClassRoomSerializer(rooms, many=True)
+#        return Response({'classes': serializer.data}, status=status.HTTP_200_OK)
 
 # @api_view(['POST'])
 # @permission_classes([AllowAny])
